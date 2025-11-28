@@ -1,0 +1,8 @@
+README.md
+pyproject.toml
+src/config.py
+src/bizkaia_od.egg-info/PKG-INFO
+src/bizkaia_od.egg-info/SOURCES.txt
+src/bizkaia_od.egg-info/dependency_links.txt
+src/bizkaia_od.egg-info/requires.txt
+src/bizkaia_od.egg-info/top_level.txt

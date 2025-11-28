@@ -1,0 +1,66 @@
+[project]
+name = "bizkaia_od"
+version = "0.1.0"
+description = "Hackathon to visualize Bizkaia Open data"
+authors = [{ name = "Luca & Paula", email = "luca.liebscht@bsc.es" }]
+requires-python = ">=3.11"
+
+dependencies = [
+    # Core scientific stack
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    # Notebook environment
+    "jupyterlab",
+    "ipykernel",
+    "nbformat",
+    # Always included plotting
+    "matplotlib",
+    "plotly",
+    # Passwords
+    "python-dotenv",
+    "folium>=0.20.0",
+    "mapclassify>=2.10.0",
+]
+
+[project.optional-dependencies]
+geo = [
+    # Geospatial analysis
+    "geopandas>=1.0.1",
+    "shapely",
+    "mapclassify",
+    "tobler",
+    "h3",
+    "pandana",
+    "openrouteservice"
+]
+
+viz = [
+    # Additional visualization
+    "seaborn",
+    "kaleido",
+    "folium",
+    "keplergl",
+    "pydeck"
+]
+
+validation = [
+    # Data validation and profiling
+    "pandera",
+    "pydantic",
+    "ydata-profiling"
+]
+
+dev = [
+    # Development & utilities
+    "requests",
+    "loguru",
+    "unidecode",
+    "pytest",
+    "black",
+    "ruff"
+]
+
+[tool.uv]
+index-url = "https://pypi.org/simple"
