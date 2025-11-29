@@ -1,10 +1,11 @@
+image: alpine:latest  # lightweight build image
+
 pages:
   stage: deploy
   script:
-    - mkdir .public
-    - cp -r public/* .public/
+    - echo "Nothing to build, publishing /public"
   artifacts:
     paths:
-      - .public
+      - public
   only:
-    - main
+    - main  # or "master" if your default branch is master
