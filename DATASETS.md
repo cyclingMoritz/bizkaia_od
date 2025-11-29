@@ -10,13 +10,10 @@ Los tres datasets globales son:
 * **Bizkaibus - Expediciones y Refuerzos**: fue subido el 25 octubre 2025	, y està disponible en varios formatos [CSV, XML, JSON, TSV, XLSX]
 
 Los locales se dividen en dos grandes grupos, cada uno con 112 instàncias. Se diferencias según su categoria principal:
-* **Bizkaibus**: Subidas el 25 de octubre de 2025. El nombre del dataset es **Bizkaibus - Expediciones y Refuerzos - NombreMuni**, y hay una por municipio/¿región?. Estan disponibles en [].
-* **BizkaiBus**: Subidas el 15 de mayo de 2021. El nombre del dataset es **Bizkaibus - NombreMuni**, y hay una por municipio + una global. El global està disponible en [], los locales en [].
+* **Bizkaibus**: Subidas el 25 de octubre de 2025. El nombre del dataset es **Bizkaibus - Expediciones y Refuerzos - NombreMuni**, y hay una por municipio/¿región?. Estan disponibles en [CSV, XML, JSON, TSV, XLSX].
+* **BizkaiBus**: Subidas el 15 de mayo de 2021. El nombre del dataset es **Bizkaibus - NombreMuni**, y hay una por municipio/¿región?. Estan disponibles en [XML].
 
-El tercer dataset global (Los dos anteriores parecen ser una versión agregada de la versión municipal), se llama **Información geográfica de rutas y paradas de Bizkaibus**, 
-
-
-## BizkaiBus
+## BizkaiBus (Global)
 
 Principal dataset, con diferentes archivos disponibles:
 * **Lineas**: *Consulta la información relativa a las líneas de Bizkaibus.* Sembla versió estàtica. 
@@ -27,3 +24,9 @@ Principal dataset, con diferentes archivos disponibles:
 * **Tarifas**: *Consulta el sistema tarifario del servicio Bizkaibus.*
 
 Disponible en [Enlace](https://www.opendatabizkaia.eus/es/catalogo/bizkaibus)
+
+
+## bizkaibus
+Se ofrece información sobre expediciones y refuerzos de los autobuses Bizkaibus.
+
+https://www.opendatabizkaia.eus/es/catalogo/bizkaibus-expediciones-refuerzos
