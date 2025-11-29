@@ -22,12 +22,10 @@ async function fetchSIRI() {
     const res = await fetch(SIRI_URL);
     const data = await res.json();
 
-    // Navigate SIRI structure (MTA JSON)
     const vehicles =
       data.Siri.ServiceDelivery.VehicleMonitoringDelivery[0]
         .VehicleActivity || [];
 
-    // Clear old markers
     vehicleLayer.clearLayers();
 
     vehicles.forEach((v) => {
@@ -39,22 +37,16 @@ async function fetchSIRI() {
       const line = mv.LineRef || "Unknown route";
       const dest = mv.DestinationName || "Unknown destination";
 
-      const marker = L.marker([lat, lon]).bindPopup(
-        `<strong>${line}</strong><br>→ ${dest}`
-      );
-
-      vehicleLayer.addLayer(marker);
+      L.marker([lat, lon])
+        .bindPopup(`<strong>${line}</strong><br>→ ${dest}`)
+        .addTo(vehicleLayer);
     });
 
     console.log(`Updated at ${new Date().toLocaleTimeString()}`);
-
   } catch (err) {
     console.error("SIRI error:", err);
   }
 }
 
-// First load
 fetchSIRI();
-
-// Auto-refresh
 setInterval(fetchSIRI, REFRESH_MS);
