@@ -30,3 +30,11 @@ Disponible en [Enlace](https://www.opendatabizkaia.eus/es/catalogo/bizkaibus)
 Se ofrece información sobre expediciones y refuerzos de los autobuses Bizkaibus.
 
 https://www.opendatabizkaia.eus/es/catalogo/bizkaibus-expediciones-refuerzos
+
+
+
+
+# Más datasets/webs interesantes
+
+* [Datasets consorcio transporte Bizkaia](https://data.ctb.eus/dataset/?res_format=GTFS)
+    * 
