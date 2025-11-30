@@ -191,4 +191,7 @@ for _, row in df_all.iterrows():
 
 
 
-st_folium(m, width=700, height=500)
+# st_folium(m, width=700, height=500)
+
+map_html = m._repr_html_()   # produces <iframe> with full map
+st.components.v1.html(map_html, height=500, scrolling=False)
