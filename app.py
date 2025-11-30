@@ -7,11 +7,13 @@ import folium
 from streamlit_folium import st_folium
 from google.transit import gtfs_realtime_pb2
 import time
-REFRESH_INTERVAL = 60  # seconds
 
-# ---------------------------------------------
-# Utils
-# ---------------------------------------------
+
+from realtime.vehicles import load_positions_bus,load_positions_metro, load_positions_renfe
+
+st.set_page_config(page_title="Bizkaia Public Transport", layout="wide")
+
+REFRESH_INTERVAL = 60  # seconds
 def parse_iso8601(ts):
     """Convert ISO8601 timestamp string → datetime."""
     try:
@@ -20,44 +22,14 @@ def parse_iso8601(ts):
         return None
 
 
+
 # ======================================================
 # 1) FETCH BUS DATA (SIRI XML)
 # ======================================================
 BUS_URL = "https://ctb-siri.s3.eu-south-2.amazonaws.com/bizkaibus-vehicle-positions.xml"
 ns = {"siri": "http://www.siri.org.uk/siri"}
 
-resp_bus = requests.get(BUS_URL)
-resp_bus.raise_for_status()
-root = ET.fromstring(resp_bus.content)
-
-bus_rows = []
-
-for activity in root.findall(".//siri:VehicleActivity", ns):
-    mvj = activity.find(".//siri:MonitoredVehicleJourney", ns)
-    if mvj is None:
-        continue
-
-    loc = mvj.find(".//siri:VehicleLocation", ns)
-    if loc is None:
-        continue
-
-    lat = loc.find("siri:Latitude", ns)
-    lon = loc.find("siri:Longitude", ns)
-    if lat is None or lon is None:
-        continue
-
-    vehicle_id = mvj.findtext("siri:VehicleRef", default=None, namespaces=ns)
-    timestamp = activity.findtext("siri:RecordedAtTime", default=None, namespaces=ns)
-
-    bus_rows.append({
-        "vehicle_id": vehicle_id,
-        "lat": float(lat.text),
-        "lon": float(lon.text),
-        "timestamp": parse_iso8601(timestamp),
-        "mode": "bus"
-    })
-
-df_bus = pd.DataFrame(bus_rows)
+df_bus = load_positions_bus(BUS_URL,ns)
 
 
 # ======================================================
@@ -65,26 +37,7 @@ df_bus = pd.DataFrame(bus_rows)
 # ======================================================
 METRO_URL = "https://ctb-gtfs-rt.s3.eu-south-2.amazonaws.com/metro-bilbao-vehicle-positions.pb"
 
-feed = gtfs_realtime_pb2.FeedMessage()
-resp_metro = requests.get(METRO_URL)
-feed.ParseFromString(resp_metro.content)
-time_metro = datetime.fromtimestamp(feed.header.timestamp)
-
-metro_rows = []
-for ent in feed.entity:
-    if ent.HasField("vehicle"):
-        vp = ent.vehicle
-        pos = vp.position
-        if pos.latitude is None or pos.longitude is None:
-            continue
-        metro_rows.append({
-            "vehicle_id": vp.vehicle.id if vp.vehicle.id else None,
-            "lat": pos.latitude,
-            "lon": pos.longitude,
-            "mode": "metro"
-        })
-
-df_metro = pd.DataFrame(metro_rows)
+df_metro = load_positions_metro(METRO_URL)
 
 
 # ======================================================
@@ -92,34 +45,7 @@ df_metro = pd.DataFrame(metro_rows)
 # ======================================================
 RENFE_URL = "https://gtfsrt.renfe.com/vehicle_positions.pb"
 
-feed = gtfs_realtime_pb2.FeedMessage()
-resp_renfe = requests.get(RENFE_URL)
-feed.ParseFromString(resp_renfe.content)
-
-renfe_rows = []
-for ent in feed.entity:
-    if ent.HasField("vehicle"):
-        vp = ent.vehicle
-        pos = vp.position
-        if pos.latitude is None or pos.longitude is None:
-            continue
-        renfe_rows.append({
-            "vehicle_id": vp.vehicle.id if vp.vehicle.id else None,
-            "lat": pos.latitude,
-            "lon": pos.longitude,
-            "timestamp": datetime.fromtimestamp(vp.timestamp) if vp.timestamp else None,
-            "mode": "renfe"
-        })
-
-df_renfe = pd.DataFrame(renfe_rows)
-
-# Optional: filter by Bizkaia bounding box
-min_lon, max_lon = -3.5, -2.3
-min_lat, max_lat = 43.0, 43.5
-df_renfe = df_renfe[
-    (df_renfe.lon >= min_lon) & (df_renfe.lon <= max_lon) &
-    (df_renfe.lat >= min_lat) & (df_renfe.lat <= max_lat)
-].reset_index(drop=True)
+df_renfe = load_positions_renfe(RENFE_URL)
 
 
 # ======================================================
@@ -153,8 +79,9 @@ with col1:
 with col2:
     st.subheader("🚇 Metro Bilbao (GTFS-RT)")
     st.write(f"**Vehicles detected:** {len(df_metro)}")
-    if len(df_metro) > 0:
-        st.write("**Last update:**", time_metro.strftime("%d %b %Y, %H:%M:%S"))
+    if len(df_metro) > 0 and df_metro['timestamp'].notna().any():
+        last_metro = df_metro['timestamp'].max()
+        st.write("**Last update:**", last_metro.strftime("%d %b %Y, %H:%M:%S"))
 with col3:
     st.subheader("🚆 Renfe Trains (Bizkaia)")
     st.write(f"**Vehicles detected:** {len(df_renfe)}")
@@ -168,18 +95,49 @@ with col3:
 # ======================================================
 df_all = pd.concat([df_bus, df_metro, df_renfe], ignore_index=True, sort=False)
 # Center map on Bilbao
-m = folium.Map(location=[43.2630, -2.9350], zoom_start=11)
+m = folium.Map(location=[43.2630, -2.9350], zoom_start=11,tiles="CartoDB Positron")
 
+# HTML circle icon
+def icon(color):
+    return f'<span style="color:{color}; font-size:20px;">●</span>'
+
+# Define layer groups
+layer_bus = folium.FeatureGroup(name=f"{icon('green')} Bus", show=True)
+layer_metro = folium.FeatureGroup(name=f"{icon('orange')} Metro", show=True)
+layer_renfe = folium.FeatureGroup(name=f"{icon('purple')} Renfe", show=True)
+
+layer_bus.add_to(m)
+layer_metro.add_to(m)
+layer_renfe.add_to(m)
+
+# -----------------------------
+# 3. Add each marker to its group
+# -----------------------------
 for _, row in df_all.iterrows():
-    if row["mode"] == "bus":
-        color = "blue"
-    elif row["mode"] == "metro":
-        color = "red"
-    else:
+    mode = row.get("mode", None)
+
+    # safety check
+    if mode not in ("bus", "metro", "renfe"):
+        continue
+    
+    # pick layer
+    if mode == "bus":
+        layer = layer_bus
         color = "green"
+    elif mode == "metro":
+        layer = layer_metro
+        color = "orange"
+    elif mode == "renfe":
+        layer = layer_renfe
+        color = "purple"
+    else:
+        layer = layer_renfe
+        color = "blue"
 
-    popup = f"{row['mode'].upper()} — {row['vehicle_id']}"
+    # popup
+    popup = f"{mode.upper()} — {row.get('vehicle_id')}"
 
+    # create marker
     folium.CircleMarker(
         [row["lat"], row["lon"]],
         radius=6,
@@ -187,7 +145,9 @@ for _, row in df_all.iterrows():
         fill=True,
         fill_color=color,
         popup=popup
-    ).add_to(m)
+    ).add_to(layer)
+
+folium.LayerControl(overlay=True).add_to(m)
 
 
 
@@ -195,3 +155,53 @@ for _, row in df_all.iterrows():
 
 map_html = m._repr_html_()   # produces <iframe> with full map
 st.components.v1.html(map_html, height=500, scrolling=False)
+
+
+
+
+# def create_map(_gdf, _boundary_gdf):
+
+#     if len(_gdf) > 0:
+#         center = [_gdf["latitude"].mean(), _gdf["longitude"].mean()]
+#     else:
+#         center = [_boundary_gdf["lat"].mean(), _boundary_gdf["lon"].mean()]
+
+#     m = folium.Map(location=center, zoom_start=12, tiles="CartoDB Positron")
+
+#     # Add Lisbon boundary polygons
+#     # boundary_fg = folium.FeatureGroup(name="Lisbon Boundary")
+
+
+#     if len(_gdf) > 0:
+#         points_fg = folium.FeatureGroup(name="Accidents")
+#         marker_cluster = MarkerCluster().add_to(points_fg)
+#         for _, row in _gdf.iterrows():
+#             date_str = pd.to_datetime(row["date"]).strftime("%d %b %Y")
+#             popup_html = f"""
+#             <div style="font-size:14px; line-height:1.4;">
+#                 <b style="font-size:16px;">Accident ID: {row['id']}</b><br><br>
+#                 <b>Date:</b> {date_str}<br>
+#                 <b>Weekday:</b> {row['weekday']}<br>
+#                 <b>Hour:</b> {row['hour']}<br>
+#                 <b>Minor Injuries:</b> {row['minor_injuries_30d']}<br>
+#                 <b>Serious Injuries:</b> {row['serious_injuries_30d']}<br>
+#                 <b>Fatalities:</b> {row['fatalities_30d']}<br>
+#             </div>
+#             """
+#             folium.CircleMarker(
+#                 location=[row["latitude"], row["longitude"]],
+#                 radius=7,
+#                 color="#8B0000",
+#                 weight=2,
+#                 fill=True,
+#                 fill_opacity=0.8,
+#                 fill_color="#FF3333",
+#                 popup=folium.Popup(popup_html, max_width=300),
+#             ).add_to(marker_cluster)
+#     points_fg.add_to(m)
+#     # ----------------------
+#     # Add LayerControl
+#     # ----------------------
+#     folium.LayerControl(collapsed=False).add_to(m)
+#     # Instead of caching the map, cache the HTML string
+#     return m._repr_html_()
