@@ -68,6 +68,7 @@ METRO_URL = "https://ctb-gtfs-rt.s3.eu-south-2.amazonaws.com/metro-bilbao-vehicl
 feed = gtfs_realtime_pb2.FeedMessage()
 resp_metro = requests.get(METRO_URL)
 feed.ParseFromString(resp_metro.content)
+time_metro = datetime.fromtimestamp(feed.header.timestamp)
 
 metro_rows = []
 for ent in feed.entity:
@@ -80,7 +81,6 @@ for ent in feed.entity:
             "vehicle_id": vp.vehicle.id if vp.vehicle.id else None,
             "lat": pos.latitude,
             "lon": pos.longitude,
-            "timestamp": datetime.utcfromtimestamp(vp.timestamp) if vp.timestamp else None,
             "mode": "metro"
         })
 
@@ -107,7 +107,7 @@ for ent in feed.entity:
             "vehicle_id": vp.vehicle.id if vp.vehicle.id else None,
             "lat": pos.latitude,
             "lon": pos.longitude,
-            "timestamp": datetime.utcfromtimestamp(vp.timestamp) if vp.timestamp else None,
+            "timestamp": datetime.fromtimestamp(vp.timestamp) if vp.timestamp else None,
             "mode": "renfe"
         })
 
@@ -135,10 +135,8 @@ remaining = int(REFRESH_INTERVAL - (time.time() - st.session_state.last_refresh)
 if remaining <= 0:
     # Time to refresh
     st.session_state.last_refresh = time.time()
-    st.experimental_rerun()
+    st.rerun()
 
-# Show countdown
-st.write(f"⏱️ Next update in: {remaining} s")
 
 
 # ======================================================
@@ -155,9 +153,8 @@ with col1:
 with col2:
     st.subheader("🚇 Metro Bilbao (GTFS-RT)")
     st.write(f"**Vehicles detected:** {len(df_metro)}")
-    if len(df_metro) > 0 and df_metro['timestamp'].notna().any():
-        last_metro = df_metro['timestamp'].max()
-        st.write("**Last update:**", last_metro.strftime("%d %b %Y, %H:%M:%S"))
+    if len(df_metro) > 0:
+        st.write("**Last update:**", time_metro.strftime("%d %b %Y, %H:%M:%S"))
 with col3:
     st.subheader("🚆 Renfe Trains (Bizkaia)")
     st.write(f"**Vehicles detected:** {len(df_renfe)}")
@@ -178,9 +175,11 @@ for _, row in df_all.iterrows():
         color = "blue"
     elif row["mode"] == "metro":
         color = "red"
-    else:  # renfe
+    else:
         color = "green"
+
     popup = f"{row['mode'].upper()} — {row['vehicle_id']}"
+
     folium.CircleMarker(
         [row["lat"], row["lon"]],
         radius=6,
@@ -189,6 +188,7 @@ for _, row in df_all.iterrows():
         fill_color=color,
         popup=popup
     ).add_to(m)
+
 
 
 st_folium(m, width=700, height=500)
