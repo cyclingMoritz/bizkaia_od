@@ -68,6 +68,7 @@ if remaining <= 0:
 # ======================================================
 # 5) INFO PANELS
 # ======================================================
+st.title("Bizkaia Public Transport Live Map (🚍🚇🚆)")
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -93,6 +94,10 @@ with col3:
 # ======================================================
 # 6) COMBINE & MAP
 # ======================================================
+# -----------------------------
+# 6.1. General map with all vehicles by mode
+# -----------------------------
+
 df_all = pd.concat([df_bus, df_metro, df_renfe], ignore_index=True, sort=False)
 
 map_html = plot_vehicles_by_mode(
@@ -107,7 +112,7 @@ st.components.v1.html(map_html, height=500, scrolling=False)
 
 
 # -----------------------------
-# 3. Add each marker to its group
+# 6.2 Map of only bus content
 # -----------------------------
 
 
