@@ -11,8 +11,10 @@ __pycache__/
 # data/raw/*
 !data/raw/.gitkeep
 # data/processed/*
+data/processed/tiles/*
 !data/processed/.gitkeep
 # data/external/*
+
 !data/external/.gitkeep
 
 # Jupyter
