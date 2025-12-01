@@ -37,17 +37,20 @@ def load_positions_bus(url,ns):
         lon = loc.find("siri:Longitude", ns)
         if lat is None or lon is None:
             continue
-
         vehicle_id = mvj.findtext("siri:VehicleRef", default=None, namespaces=ns)
         timestamp = activity.findtext("siri:RecordedAtTime", default=None, namespaces=ns)
+        line_id = mvj.findtext("siri:VehicleJourneyRef", default=None, namespaces=ns)
 
+        line_id =line_id.split("_")[1]
         bus_rows.append({
             "vehicle_id": vehicle_id,
+            "line_id": line_id,
             "lat": float(lat.text),
             "lon": float(lon.text),
             "timestamp": parse_iso8601(timestamp),
             "mode": "bus"
         })
+    print("Test")
 
     return pd.DataFrame(bus_rows)
 
