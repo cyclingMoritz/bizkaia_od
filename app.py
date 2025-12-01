@@ -130,3 +130,62 @@ with st.expander("Kill my browser by adding all bus lines, stops and vehicles!")
     )
 
     st.components.v1.html(map_html, height=600, scrolling=False)
+
+# -----------------------------
+# 6.3 Version with tiles
+# -----------------------------
+# import streamlit as st
+# import folium
+# from pathlib import Path
+# import socket
+# import http.server, socketserver, threading
+
+# st.title("🚍 BizkaiaBus map with vector tiles")
+
+# OUTPUT_TILES_DIR = PROCESSED_DATA_DIR / "tiles"
+
+# # Pick a free port dynamically
+# s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# s.bind(("", 0))
+# PORT = s.getsockname()[1]
+# s.close()
+
+# # Start a lightweight HTTP server
+# class ReusableTCPServer(socketserver.TCPServer):
+#     allow_reuse_address = True
+
+# handler = lambda *args, **kwargs: http.server.SimpleHTTPRequestHandler(*args, directory=str(PROCESSED_DATA_DIR), **kwargs)
+# httpd = ReusableTCPServer(("", PORT), handler)
+# threading.Thread(target=httpd.serve_forever, daemon=True).start()
+# st.write(f"Serving tiles at http://localhost:{PORT}/tiles/")
+
+# # Folium map
+# m = folium.Map(location=[43.2630, -2.9350], zoom_start=11, tiles="CartoDB Positron")
+
+# # Add all line layers
+# # line_types = ["BizkaibusLine1", "BizkaibusLine2", "BizkaibusLine3", "BizkaibusLine4"]
+# # for line_type in line_types:
+# #     folium.TileLayer(
+# #         tiles=f"http://localhost:{PORT}/tiles/lines_{line_type}/{{z}}/{{x}}/{{y}}.mvt",
+# #         attr=f"Lines {line_type}",
+# #         name=f"Bus {line_type}",
+# #         overlay=True,
+# #         control=True,
+# #         tms=True
+# #     ).add_to(m)
+
+# # Optional: add stops
+# folium.TileLayer(
+#     tiles=f"http://localhost:{PORT}/tiles/stops/{{z}}/{{x}}/{{y}}.mvt",
+#     attr="Stops",
+#     name="Stops",
+#     overlay=True,
+#     control=True,
+#     tms=True
+# ).add_to(m)
+
+# # Layer control
+# folium.LayerControl().add_to(m)
+
+# # Render in Streamlit
+# st.components.v1.html(m._repr_html_(), height=600, scrolling=False)
