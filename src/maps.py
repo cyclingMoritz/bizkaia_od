@@ -1,9 +1,72 @@
 import folium
 import geopandas as gpd
-
-import folium
-import geopandas as gpd
 import pandas as pd
+
+
+def plot_vehicles_by_mode(
+    df_vehicles: pd.DataFrame,
+    map_center: tuple = (43.2630, -2.9350),
+    zoom_start: int = 11,
+    mode_colors: dict = None,
+    radius: int = 6
+) -> str:
+    """
+    Plot vehicles as circle markers on a Folium map, split by 'mode'.
+    
+    Args:
+        df_vehicles: DataFrame with columns ['vehicle_id', 'lat', 'lon', 'mode', ...]
+        map_center: Tuple (lat, lon) for map center
+        zoom_start: Initial zoom level
+        mode_colors: Dict mapping mode -> color, e.g., {'bus':'green', 'metro':'orange', 'renfe':'purple'}
+        radius: Marker radius
+    Returns:
+        HTML string for Streamlit
+    """
+    
+    if mode_colors is None:
+        mode_colors = {'bus': 'green', 'metro': 'orange', 'renfe': 'purple'}
+    
+    # Helper: HTML icon for LayerControl
+    def icon(color):
+        return f'<span style="color:{color}; font-size:20px;">●</span>'
+    
+    # Create map
+    m = folium.Map(location=map_center, zoom_start=zoom_start, tiles="CartoDB Positron")
+    
+    # Create a feature group for each mode
+    layers = {}
+    for mode, color in mode_colors.items():
+        fg = folium.FeatureGroup(name=f"{icon(color)} {mode.capitalize()}", show=True)
+        fg.add_to(m)
+        layers[mode] = fg
+    
+    # Add markers
+    for _, row in df_vehicles.iterrows():
+        mode = row.get("mode")
+        if mode not in layers:
+            continue
+        color = mode_colors[mode]
+        popup = f"{mode.upper()} — {row.get('vehicle_id')}"
+        folium.CircleMarker(
+            [row["lat"], row["lon"]],
+            radius=radius,
+            color=color,
+            fill=True,
+            fill_color=color,
+            popup=popup
+        ).add_to(layers[mode])
+    
+    # Add layer control
+    folium.LayerControl(overlay=True, collapsed=False).add_to(m)
+    
+    # Return HTML
+    return m._repr_html_()
+
+
+
+
+
+
 
 def create_stops_lines_folium_map(
     lines_gdf: gpd.GeoDataFrame,

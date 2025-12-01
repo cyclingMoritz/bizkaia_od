@@ -7,7 +7,7 @@ import time
 
 
 from realtime.vehicles import load_positions_bus,load_positions_metro, load_positions_renfe
-from maps import create_stops_lines_folium_map
+from maps import create_stops_lines_folium_map, plot_vehicles_by_mode
 from config import PROCESSED_DATA_DIR
 st.set_page_config(page_title="Bizkaia Public Transport", layout="wide")
 
@@ -94,64 +94,13 @@ with col3:
 # 6) COMBINE & MAP
 # ======================================================
 df_all = pd.concat([df_bus, df_metro, df_renfe], ignore_index=True, sort=False)
-# Center map on Bilbao
-m = folium.Map(location=[43.2630, -2.9350], zoom_start=11,tiles="CartoDB Positron")
 
-# HTML circle icon
-def icon(color):
-    return f'<span style="color:{color}; font-size:20px;">●</span>'
+map_html = plot_vehicles_by_mode(
+    df_vehicles=df_all,
+    mode_colors={'bus':'green','metro':'orange','renfe':'purple'},
+    radius=6
+)
 
-# Define layer groups
-layer_bus = folium.FeatureGroup(name=f"{icon('green')} Bus", show=True)
-layer_metro = folium.FeatureGroup(name=f"{icon('orange')} Metro", show=True)
-layer_renfe = folium.FeatureGroup(name=f"{icon('purple')} Renfe", show=True)
-
-layer_bus.add_to(m)
-layer_metro.add_to(m)
-layer_renfe.add_to(m)
-
-# -----------------------------
-# 3. Add each marker to its group
-# -----------------------------
-for _, row in df_all.iterrows():
-    mode = row.get("mode", None)
-
-    # safety check
-    if mode not in ("bus", "metro", "renfe"):
-        continue
-    
-    # pick layer
-    if mode == "bus":
-        layer = layer_bus
-        color = "green"
-    elif mode == "metro":
-        layer = layer_metro
-        color = "orange"
-    elif mode == "renfe":
-        layer = layer_renfe
-        color = "purple"
-    else:
-        layer = layer_renfe
-        color = "blue"
-
-    # popup
-    popup = f"{mode.upper()} — {row.get('vehicle_id')}"
-
-    # create marker
-    folium.CircleMarker(
-        [row["lat"], row["lon"]],
-        radius=6,
-        color=color,
-        fill=True,
-        fill_color=color,
-        popup=popup
-    ).add_to(layer)
-
-folium.LayerControl(overlay=True).add_to(m)
-
-
-
-map_html = m._repr_html_()   # produces <iframe> with full map
 st.components.v1.html(map_html, height=500, scrolling=False)
 
 
