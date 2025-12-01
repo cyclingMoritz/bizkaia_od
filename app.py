@@ -1,35 +1,35 @@
 import streamlit as st
-import requests
-import xml.etree.ElementTree as ET
 import pandas as pd
+import geopandas as gpd
 from datetime import datetime
 import folium
-from streamlit_folium import st_folium
-from google.transit import gtfs_realtime_pb2
 import time
 
 
 from realtime.vehicles import load_positions_bus,load_positions_metro, load_positions_renfe
-
+from maps import create_stops_lines_folium_map
+from config import PROCESSED_DATA_DIR
 st.set_page_config(page_title="Bizkaia Public Transport", layout="wide")
 
 REFRESH_INTERVAL = 60  # seconds
-def parse_iso8601(ts):
-    """Convert ISO8601 timestamp string → datetime."""
-    try:
-        return datetime.fromisoformat(ts.replace("Z", "+00:00"))
-    except:
-        return None
+
 
 
 
 # ======================================================
 # 1) FETCH BUS DATA (SIRI XML)
 # ======================================================
+
 BUS_URL = "https://ctb-siri.s3.eu-south-2.amazonaws.com/bizkaibus-vehicle-positions.xml"
 ns = {"siri": "http://www.siri.org.uk/siri"}
 
+# Load data
 df_bus = load_positions_bus(BUS_URL,ns)
+lines_bus = gpd.read_file(PROCESSED_DATA_DIR / "Bizkaibus" / "bizkaibus_lines.gpkg", layer="lines")
+stops_bus = gpd.read_file(PROCESSED_DATA_DIR / "Bizkaibus" / "bizkaibus_stops.gpkg", layer="stops")
+
+
+
 
 
 # ======================================================
@@ -151,9 +151,28 @@ folium.LayerControl(overlay=True).add_to(m)
 
 
 
-# st_folium(m, width=700, height=500)
-
 map_html = m._repr_html_()   # produces <iframe> with full map
 st.components.v1.html(map_html, height=500, scrolling=False)
 
 
+
+
+# -----------------------------
+# 3. Add each marker to its group
+# -----------------------------
+
+
+st.title("🚍 Super heavy map BizkaiaBus")
+with st.expander("Kill my browser by adding all bus lines, stops and vehicles!"):
+    # Make map with lines & stops & Buses
+    map_html = create_stops_lines_folium_map(
+        lines_gdf=lines_bus,
+        stops_gdf=stops_bus,
+        vehicles_df=df_bus,
+        lines_group_col="layer_name",
+        lines_tooltip_cols=["CodigoLinea"],
+        stops_popup_col="Denominacion",
+        vehicles_popup_cols=["vehicle_id", "mode", "timestamp"]
+    )
+
+    st.components.v1.html(map_html, height=600, scrolling=False)
