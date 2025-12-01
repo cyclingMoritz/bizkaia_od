@@ -7,7 +7,8 @@ import time
 
 
 from realtime.vehicles import load_positions_bus,load_positions_metro, load_positions_renfe
-from maps import create_stops_lines_folium_map, plot_vehicles_by_mode
+from maps import create_stops_lines_folium_map, plot_vehicles_by_mode, create_filtered_map
+from filtering_menus import get_unique_options, sync_selection, filter_datasets_by_lines
 from config import PROCESSED_DATA_DIR
 st.set_page_config(page_title="Bizkaia Public Transport", layout="wide")
 
@@ -63,8 +64,6 @@ if remaining <= 0:
     st.session_state.last_refresh = time.time()
     st.rerun()
 
-
-
 # ======================================================
 # 5) INFO PANELS
 # ======================================================
@@ -109,6 +108,106 @@ map_html = plot_vehicles_by_mode(
 st.components.v1.html(map_html, height=500, scrolling=False)
 
 
+# ======================================================
+# 7) Filters testing 
+# ======================================================
+st.title("Playing with filters (🚍)")
+# -----------------------------
+# 7.1. Filter by line name
+# -----------------------------
+st.header("Stations")
+
+with st.expander("Filter by Line Name", expanded=False):
+    col1, col2 = st.columns(2)
+
+    line_ids, line_names = get_unique_options(lines_bus, "line_id", "DenominacionLinea")
+
+    with col1:
+        selected_ids = st.multiselect("Line ID", options=line_ids)
+    with col2:
+        selected_names = st.multiselect("Line Name", options=line_names)
+
+    all_selected_ids, _ = sync_selection(lines_bus, selected_ids, selected_names, "line_id", "DenominacionLinea")
+
+    # Filter DataFrames
+    selected_lines,selected_stops,vehicles_bus_filtered = filter_datasets_by_lines(
+        lines_bus,stops_bus,df_bus,all_selected_ids
+    )
+
+    # Create map
+    map_html = create_filtered_map(
+        lines_gdf=selected_lines,
+        stops_gdf=selected_stops,
+        vehicles_df=vehicles_bus_filtered,
+        lines_tooltip_cols=["line_id"],
+        stops_popup_col="Denominacion",
+        vehicles_popup_cols=[]
+    )
+
+    st.components.v1.html(map_html, height=600, scrolling=False)
+    
+# -----------------------------
+# 7.2. Filter by Municipality
+# -----------------------------
+
+st.header("Municipalities")
+
+with st.expander("Filter by Municipality or Regions", expanded=False):
+    col1, col2 = st.columns(2)
+
+    stop_provincia, stop_municipio = get_unique_options(stops_bus, "DescripcionProvincia", "DescripcionMunicipio")
+
+    with col1:
+        selected_provincia = st.multiselect("DescripcionProvincia", options=stop_provincia)
+        ids_provincia = stops_bus[stops_bus["DescripcionProvincia"].isin(selected_provincia)]["line_id"].unique().tolist()
+    with col2:
+        selected_municipio= st.multiselect("DescripcionMunicipio", options=stop_municipio)
+        ids_municipio = stops_bus[stops_bus["DescripcionMunicipio"].isin(selected_municipio)]["line_id"].unique().tolist()
+    all_selected_ids = list(dict.fromkeys(ids_provincia + ids_municipio))
+
+    # Filter DataFrames
+    selected_lines,selected_stops,vehicles_bus_filtered = filter_datasets_by_lines(
+        lines_bus,stops_bus,df_bus,all_selected_ids
+    )
+
+    # Create map
+    map_html = create_filtered_map(
+        lines_gdf=selected_lines,
+        stops_gdf=selected_stops,
+        vehicles_df=vehicles_bus_filtered,
+        lines_tooltip_cols=["line_id"],
+        stops_popup_col="Denominacion",
+        vehicles_popup_cols=[]
+    )
+
+    st.components.v1.html(map_html, height=600, scrolling=False)
+
+# -----------------------------
+# 7.3. Filter by Active
+# -----------------------------
+
+st.header("Active buses")
+
+with st.expander("Filter by Lines with Active Buses", expanded=False):
+
+    all_selected_ids = df_bus["line_id"].unique().tolist()
+    
+    # Filter DataFrames
+    selected_lines,selected_stops,vehicles_bus_filtered = filter_datasets_by_lines(
+        lines_bus,stops_bus,df_bus,all_selected_ids
+    )
+
+    # Create map
+    map_html = create_filtered_map(
+        lines_gdf=selected_lines,
+        stops_gdf=selected_stops,
+        vehicles_df=vehicles_bus_filtered,
+        lines_tooltip_cols=["line_id"],
+        stops_popup_col="Denominacion",
+        vehicles_popup_cols=[]
+    )
+
+    st.components.v1.html(map_html, height=600, scrolling=False)
 
 
 # -----------------------------
@@ -124,7 +223,7 @@ with st.expander("Kill my browser by adding all bus lines, stops and vehicles!")
         stops_gdf=stops_bus,
         vehicles_df=df_bus,
         lines_group_col="layer_name",
-        lines_tooltip_cols=["CodigoLinea"],
+        lines_tooltip_cols=["line_id"],
         stops_popup_col="Denominacion",
         vehicles_popup_cols=["vehicle_id", "mode", "timestamp"]
     )
