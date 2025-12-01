@@ -25,6 +25,8 @@ dependencies = [
     "streamlit>=1.51.0",
     "streamlit-folium>=0.25.3",
     "gtfs-realtime-bindings>=1.0.0",
+    "mercantile>=1.2.1",
+    "mapbox-vector-tile>=2.2.0",
 ]
 
 [project.optional-dependencies]
