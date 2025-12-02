@@ -1,0 +1,84 @@
+Descripción del producto Redes de Transporte
+¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+Esta carpeta contiene las capas de Redes de Transporte (RT), agrupadas por modos de transporte, que se suministran a través del 
+Centro de Descargas del Centro Nacional de Información Geográfica.
+Dentro de las carpetas, las capas se encuentran en formato GeoPackage y cada una se compone de los ficheros que se listan a continuación, con la nomenclatura que se especifica.
+Su sistema de referencia es ETRS89, en coordenadas geográficas (EPSG 4258).
+
+Nomenclatura de los ficheros almacenados en RT_Provincia.zip:
+
+RT_Provincia.zip
+
+	Archivo rt_viaria.gpkg
+	¯¯¯¯¯¯¯¯¯
+	Capa rt_areactra_s		
+	Capa rt_nodoctra_p
+	Capa rt_portalpk_p
+	Capa rt_puntoctra_p
+	Capa rt_tramo_vial
+		
+		
+Nota:
+ - La capa rt_areactra_s adquiere el campo nombre de la capa rt_puntoctra_p, con la que se relaciona mediante identificadores
+ - La capa rt_nodoctra_p adquiere los campos id_tramo e id_ptoctra de las tablas de relación rrt_nodoctra_tramo y rrt_nodoctra_puntoctra, presentes en el modelo de RT.
+ - La capa rt_tramo_vial es el resultado de la unión (JOIN) de la capa rt_tramo_l (geometría de los viales) con la tabla rt_vial_a (información alfanumérica de los viales) mediante la tabla rrt_tramo_vial (tabla que relaciona los identificadores de los tramos con los viales asociados) presentes en el modelo de datos de RT. 
+
+
+	Archivo rt_ffcc.gpkg
+	¯¯¯¯¯¯¯
+	Capa rt_areaffcc_s
+	Capa rt_estacionffcc_p
+	Capa rt_nodoffcc_p
+	Capa rt_pkffcc_p
+	Capa rt_tramofc_linea
+
+Nota:
+ - La capa rt_areaffcc_s adquiere el campo nombre de la capa rt_estacionffcc_p.dbf, con la que se relaciona mediante identificadores
+ - La capa rt_nodoffcc_p adquiere los identificadores de tramo y de estación de las tablas de relación rrt_nodoffcc_tramoffcc y rrt_nodoffcc_estacionffcc presentes en el modelo de RT
+ - La capa rt_tramofc_linea es el resultado de la unión de la capa rt_tramoffcc_l con las tablas rrt_tramoffcc_lineaffcc -tabla que relaciona
+	los identificadores de los tramos con las líneas asociadas- y rt_lineaffcc_a -información alfanumérica de las líneas- presentes en el modelo de datos de RT.
+	
+	Archivo rt_aerea.gpkg
+	¯¯¯¯¯¯¯¯
+	Capa rt_areaaereo_s
+	Capa rt_aerodromo_p
+	Capa rt_nodoaereo_p
+
+Nota:
+ - La capa rt_areaaereo_s adquiere el campo nombre de la capa rt_aerodromo_p, con la que se relaciona mediante identificadores
+ - La capa rt_nodoaereo_p adquiere el identificador del aeródromo a través de la tabla de relación rrt_nodoaereo_aerodromo presente en el modelo de datos de RT.
+		
+	Archivo rt_vias_navegables.gpkg
+	¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+	Capa rt_areamar_s	
+	Capa rt_lineamar_l
+	Capa rt_nodomar_p
+	Capa rt_puerto_p
+
+Nota:		
+ - La capa rt_areamar_s adquiere el campo nombre de la capa rt_puerto_p, con la que se relaciona mediante identificadores
+ - La capa rt_nodomar_p adquiere los identificador de linea mar y puerto a través de la tabla de relación rrt_nodomar_lineamar y rrt_nodomar_puerto presentes en el modelo RT.
+ 
+	Archivo rt_intermodal.gpkg 
+	¯¯¯¯¯¯¯¯¯¯¯¯¯
+	Tabla rt_conexion_a
+	
+		
+	Archivo rt_cable.gpkg
+	¯¯¯¯¯¯¯¯
+	Capa rt_cable_l
+	Capa rt_nodocable_p
+
+Nota:
+
+ - La capa rt_nodocable_p adquiere el identificador del tramo de cable con el que está relacionado -id_tramoc- a través de la tabla de relación rrt_nodocable_tramoc, presente en el modelo RT. 	
+
+================================================		
+
+Los campos de las capas son los del modelo de datos de RT, acompañados en su caso por un campo terminado en «D», indicativa de descripción, que traduce 
+los códigos a su valor literal contemplado también en el modelo. El modelo de RT puede consultarse en: http://www.ign.es/web/ign/portal/cbg-redes-transporte 
+	
+	
+	
+	
+	
