@@ -1,7 +1,7 @@
 import folium
 import geopandas as gpd
 import pandas as pd
-
+from folium.plugins import Fullscreen
 
 def plot_vehicles_by_mode(
     df_vehicles: pd.DataFrame,
@@ -55,7 +55,13 @@ def plot_vehicles_by_mode(
             fill_color=color,
             popup=popup
         ).add_to(layers[mode])
-    
+
+    Fullscreen(
+        position="topleft",
+        title="Expand me",
+        title_cancel="Exit me",
+        force_separate_button=True,
+    ).add_to(m)
     # Add layer control
     folium.LayerControl(overlay=True, collapsed=False).add_to(m)
     
@@ -156,6 +162,12 @@ def create_stops_lines_folium_map(
             ).add_to(fg_vehicles)
         fg_vehicles.add_to(m)
     
+    Fullscreen(
+        position="topleft",
+        title="Expand me",
+        title_cancel="Exit me",
+        force_separate_button=True,
+    ).add_to(m)
     # Layer control
     folium.LayerControl(collapsed=False).add_to(m)
     
@@ -250,7 +262,12 @@ def create_filtered_map(
                 popup=popup_text
             ).add_to(fg_vehicles)
         fg_vehicles.add_to(m)
-    
+    Fullscreen(
+        position="topleft",
+        title="Expand me",
+        title_cancel="Exit me",
+        force_separate_button=True,
+    ).add_to(m)
     # Layer control
     folium.LayerControl(collapsed=False).add_to(m)
     
