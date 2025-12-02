@@ -48,7 +48,6 @@ RENFE_URL = "https://gtfsrt.renfe.com/vehicle_positions.pb"
 
 df_renfe = load_positions_renfe(RENFE_URL)
 
-
 # ======================================================
 # 4) AUTOREFRESH SETUP
 # ======================================================
@@ -215,20 +214,20 @@ with st.expander("Filter by Lines with Active Buses", expanded=False):
 # -----------------------------
 
 
-st.title("🚍 Super heavy map BizkaiaBus")
-with st.expander("Kill my browser by adding all bus lines, stops and vehicles!"):
-    # Make map with lines & stops & Buses
-    map_html = create_stops_lines_folium_map(
-        lines_gdf=lines_bus,
-        stops_gdf=stops_bus,
-        vehicles_df=df_bus,
-        lines_group_col="layer_name",
-        lines_tooltip_cols=["line_id"],
-        stops_popup_col="Denominacion",
-        vehicles_popup_cols=["vehicle_id", "mode", "timestamp"]
-    )
+# st.title("🚍 Super heavy map BizkaiaBus")
+# with st.expander("Kill my browser by adding all bus lines, stops and vehicles!"):
+#     # Make map with lines & stops & Buses
+#     map_html = create_stops_lines_folium_map(
+#         lines_gdf=lines_bus,
+#         stops_gdf=stops_bus,
+#         vehicles_df=df_bus,
+#         lines_group_col="layer_name",
+#         lines_tooltip_cols=["line_id"],
+#         stops_popup_col="Denominacion",
+#         vehicles_popup_cols=["vehicle_id", "mode", "timestamp"]
+#     )
 
-    st.components.v1.html(map_html, height=600, scrolling=False)
+#     st.components.v1.html(map_html, height=600, scrolling=False)
 
 # -----------------------------
 # 6.3 Version with tiles
