@@ -6,7 +6,7 @@ import folium
 import time
 
 
-from realtime.vehicles import load_positions_bus,load_positions_metro, load_positions_renfe
+from vehicles import load_positions_bus,load_positions_metro, load_positions_renfe
 from maps import create_stops_lines_folium_map, plot_vehicles_by_mode, create_filtered_map
 from filtering_menus import get_unique_options, sync_selection, filter_datasets_by_lines
 from config import PROCESSED_DATA_DIR
