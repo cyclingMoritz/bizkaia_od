@@ -2,7 +2,6 @@
 name = "bizkaia_od"
 version = "0.1.0"
 description = "Hackathon to visualize Bizkaia Open data"
-authors = [{ name = "Luca & Paula", email = "luca.liebscht@bsc.es" }]
 requires-python = ">=3.11"
 
 dependencies = [
@@ -34,36 +33,8 @@ dependencies = [
     "tobler",
     "h3",
     "pandana",
-    "openrouteservice"
+    "openrouteservice",
+    "osmnx>=2.0.7",
 ]
 
 
-
-viz = [
-    # Additional visualization
-    "seaborn",
-    "kaleido",
-    "folium",
-    "keplergl",
-    "pydeck"
-]
-
-validation = [
-    # Data validation and profiling
-    "pandera",
-    "pydantic",
-    "ydata-profiling"
-]
-
-dev = [
-    # Development & utilities
-    "requests",
-    "loguru",
-    "unidecode",
-    "pytest",
-    "black",
-    "ruff"
-]
-
-[tool.uv]
-index-url = "https://pypi.org/simple"
