@@ -32,7 +32,7 @@ def plot_vehicles_by_mode(
     
     # Create map
     m = folium.Map(location=map_center, zoom_start=zoom_start, tiles="CartoDB Positron")
-    boundary_fg = folium.FeatureGroup(name="Lisbon Boundary")
+    boundary_fg = folium.FeatureGroup(name="Bizkaia")
     _boundary_gdf=gpd.read_file(PROCESSED_DATA_DIR/"bizkaia_boundary.gpkg")
     for _, r in _boundary_gdf.iterrows():
         sim_geo = gpd.GeoSeries(r["geometry"]).simplify(tolerance=0.001)
