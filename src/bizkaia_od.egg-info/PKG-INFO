@@ -2,7 +2,6 @@ Metadata-Version: 2.4
 Name: bizkaia_od
 Version: 0.1.0
 Summary: Hackathon to visualize Bizkaia Open data
-Author-email: Luca & Paula <luca.liebscht@bsc.es>
 Requires-Python: >=3.11
 Requires-Dist: numpy
 Requires-Dist: pandas
@@ -16,28 +15,16 @@ Requires-Dist: plotly
 Requires-Dist: python-dotenv
 Requires-Dist: folium>=0.20.0
 Requires-Dist: mapclassify>=2.10.0
-Provides-Extra: geo
-Requires-Dist: geopandas>=1.0.1; extra == "geo"
-Requires-Dist: shapely; extra == "geo"
-Requires-Dist: mapclassify; extra == "geo"
-Requires-Dist: tobler; extra == "geo"
-Requires-Dist: h3; extra == "geo"
-Requires-Dist: pandana; extra == "geo"
-Requires-Dist: openrouteservice; extra == "geo"
-Provides-Extra: viz
-Requires-Dist: seaborn; extra == "viz"
-Requires-Dist: kaleido; extra == "viz"
-Requires-Dist: folium; extra == "viz"
-Requires-Dist: keplergl; extra == "viz"
-Requires-Dist: pydeck; extra == "viz"
-Provides-Extra: validation
-Requires-Dist: pandera; extra == "validation"
-Requires-Dist: pydantic; extra == "validation"
-Requires-Dist: ydata-profiling; extra == "validation"
-Provides-Extra: dev
-Requires-Dist: requests; extra == "dev"
-Requires-Dist: loguru; extra == "dev"
-Requires-Dist: unidecode; extra == "dev"
-Requires-Dist: pytest; extra == "dev"
-Requires-Dist: black; extra == "dev"
-Requires-Dist: ruff; extra == "dev"
+Requires-Dist: streamlit>=1.51.0
+Requires-Dist: streamlit-folium>=0.25.3
+Requires-Dist: gtfs-realtime-bindings>=1.0.0
+Requires-Dist: mercantile>=1.2.1
+Requires-Dist: mapbox-vector-tile>=2.2.0
+Requires-Dist: geopandas>=1.0.1
+Requires-Dist: shapely
+Requires-Dist: mapclassify
+Requires-Dist: tobler
+Requires-Dist: h3
+Requires-Dist: pandana
+Requires-Dist: openrouteservice
+Requires-Dist: osmnx>=2.0.7
