@@ -22,6 +22,9 @@ EXTERNAL_DATA_DIR = DATA_DIR / "external"
 NOTEBOOKS_DIR = PROJ_ROOT / "notebooks"
 SRC_DIR = PROJ_ROOT / "src"
 
+# Pages directory
+PAGES_DIR = PROJ_ROOT / "pages"
+
 # Example usage:
 # from src.config import RAW_DATA_DIR
 # df = pd.read_csv(RAW_DATA_DIR / "mydata.csv")
