@@ -6,10 +6,10 @@ import folium
 import time
 
 
-from vehicles import load_positions_bus,load_positions_metro, load_positions_renfe
-from maps import create_stops_lines_folium_map, plot_vehicles_by_mode, create_filtered_map
-from filtering_menus import get_unique_options, sync_selection, filter_datasets_by_lines
-from config import PROCESSED_DATA_DIR
+from src.vehicles import load_positions_bus,load_positions_metro, load_positions_renfe
+from src.maps import create_stops_lines_folium_map, plot_vehicles_by_mode, create_filtered_map
+from src.filtering_menus import get_unique_options, sync_selection, filter_datasets_by_lines
+from src.config import PROCESSED_DATA_DIR
 st.set_page_config(page_title="Bizkaia Public Transport", layout="wide")
 
 REFRESH_INTERVAL = 60  # seconds
