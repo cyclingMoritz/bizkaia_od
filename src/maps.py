@@ -2,7 +2,7 @@ import folium
 import geopandas as gpd
 import pandas as pd
 from folium.plugins import Fullscreen
-
+from config import PROCESSED_DATA_DIR
 def plot_vehicles_by_mode(
     df_vehicles: pd.DataFrame,
     map_center: tuple = (43.2630, -2.9350),
@@ -32,7 +32,12 @@ def plot_vehicles_by_mode(
     
     # Create map
     m = folium.Map(location=map_center, zoom_start=zoom_start, tiles="CartoDB Positron")
-    
+    boundary_fg = folium.FeatureGroup(name="Lisbon Boundary")
+    _boundary_gdf=gpd.read_file(PROCESSED_DATA_DIR/"bizkaia_boundary.gpkg")
+    for _, r in _boundary_gdf.iterrows():
+        sim_geo = gpd.GeoSeries(r["geometry"]).simplify(tolerance=0.001)
+        folium.GeoJson(sim_geo.to_json(), style_function=lambda x: {"fillColor": "orange"}).add_to(boundary_fg)
+    boundary_fg.add_to(m)   
     # Create a feature group for each mode
     layers = {}
     for mode, color in mode_colors.items():
@@ -55,6 +60,9 @@ def plot_vehicles_by_mode(
             fill_color=color,
             popup=popup
         ).add_to(layers[mode])
+
+
+
 
     Fullscreen(
         position="topleft",
@@ -183,7 +191,7 @@ def create_filtered_map(
     lines_tooltip_cols: list = ["line_id"],
     stops_popup_col: str = "Denominacion",
     vehicles_popup_cols: list = ["vehicle_id", "mode", "timestamp"],
-    map_center: tuple = (43.2630, -2.9350),
+    map_center: tuple = (43.247, -2.9864),
     zoom_start: int = 11,
     line_color: str = "green",
     line_weight: int = 3,
