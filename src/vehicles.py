@@ -1,8 +1,10 @@
 from google.transit import gtfs_realtime_pb2
 import requests
 import pandas as pd
+import geopandas as gpd
 from datetime import datetime
 import xml.etree.ElementTree as ET
+from config import PROCESSED_DATA_DIR
 
 # ---------------------------------------------
 # Utils
@@ -50,7 +52,6 @@ def load_positions_bus(url,ns):
             "timestamp": parse_iso8601(timestamp),
             "mode": "bus"
         })
-    print("Test")
 
     return pd.DataFrame(bus_rows)
 
@@ -106,11 +107,25 @@ def load_positions_renfe(url):
 
     df_renfe = pd.DataFrame(renfe_rows)
 
-    # Optional: filter by Bizkaia bounding box
-    min_lon, max_lon = -3.5, -2.3
-    min_lat, max_lat = 43.0, 43.5
-    df_renfe = df_renfe[
-        (df_renfe.lon >= min_lon) & (df_renfe.lon <= max_lon) &
-        (df_renfe.lat >= min_lat) & (df_renfe.lat <= max_lat)
-    ].reset_index(drop=True)
+    boundary_gdf=gpd.read_file(PROCESSED_DATA_DIR/"bizkaia_boundary.gpkg")
+
+    # Keep only Renfe positions inside boundary_gdf
+    df_gdf = gpd.GeoDataFrame(
+        df_renfe,
+        geometry=gpd.points_from_xy(df_renfe.lon, df_renfe.lat),
+        crs="EPSG:4326"
+    )
+
+    # Ensure boundary_gdf has a CRS and match CRS
+    if boundary_gdf.crs is None:
+        boundary_gdf = boundary_gdf.set_crs("EPSG:4326")
+    if df_gdf.crs != boundary_gdf.crs:
+        df_gdf = df_gdf.to_crs(boundary_gdf.crs)
+
+    # Filter points within the boundary polygon(s)
+    boundary_union = boundary_gdf.unary_union
+    df_gdf = df_gdf[df_gdf.geometry.within(boundary_union)].reset_index(drop=True)
+
+    # Convert back to plain DataFrame (drop geometry)
+    df_renfe = pd.DataFrame(df_gdf.drop(columns="geometry"))
     return df_renfe
