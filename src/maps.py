@@ -2,7 +2,7 @@ import folium
 import geopandas as gpd
 import pandas as pd
 from folium.plugins import Fullscreen
-from config import PROCESSED_DATA_DIR
+from src.config import PROCESSED_DATA_DIR
 def plot_vehicles_by_mode(
     df_vehicles: pd.DataFrame,
     map_center: tuple = (43.2630, -2.9350),

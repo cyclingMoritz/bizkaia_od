@@ -6,7 +6,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 import pytz
 from pathlib import Path
-from config import RAW_DATA_DIR
+from src.config import RAW_DATA_DIR
 
 URL = "https://ctb-siri.s3.eu-south-2.amazonaws.com/bizkaibus-vehicle-positions.xml"
 DATA_DIR = RAW_DATA_DIR
